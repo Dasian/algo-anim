@@ -1,0 +1,53 @@
+manim -pql scene.py CreateCircle
+-p means play
+-ql is quality low
+-qh is quality high
+-qm is medium
+-qk is 4k
+
+animations can be done dynamically
+
+mobjects are by default placed at the origin (center)
+
+sections can be used to produce a different output video
+at least one animation is needed in each section
+--save_sections needs to be added
+--save_sections scene.py
+
+-a: render all Scene classes in a file 
+-i: animations are .gif instead of .mp4
+
+
+make a graph search algorithm
+- make the edges not cross each other
+- grey starting nodes
+- yellow working nodes
+- red visted nodes
+- green found node
+
+**Graph Animations**
+Core (ordered):
+design/steal graph class
+display the graph
+implement graph algos
+animate graph algos
+
+Quality of Life:
+randomly generate graph
+- start with a node
+- randomly generate a number
+- add that many nodes to this node
+- repeat for each generated node
+- repeat for how many levels
+- randomly connect nodes on the same level
+- randomly connect nodes on upper levels, never lower?
+- bfs generation basically
+make it planar
+find which start and end nodes have the longest path/most steps
+before animation occurs (increase animation time)
+generate graphs to be animated while animating
+have a loop so graph animations will be generated, animated,
+and queued, async stuff for efficiency
+
+TODO:
+create a static graph traversal animation
