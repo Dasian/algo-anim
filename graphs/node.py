@@ -52,3 +52,12 @@ class Node:
         for node in nodes:
             self.add_edge(node, isDirected)
         
+    def __str__(self):
+        
+        s = "Name: " + str(self.name) +" weight: "+ str(self.weight) + " state: "+ str(self.state) + " visited: " + str(self.visited)
+        s += " Edges: ["
+        for e in self.edges:
+            s += e.name + ', '
+        s = s[0: len(s) - 2]
+        s += ']'
+        return s 

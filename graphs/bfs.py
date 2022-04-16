@@ -15,14 +15,14 @@
 visited = []    # List for visited nodes.
 queue = []      # Initialize a queue
 
-def bfs(visited, graph, start): # function for BFS
+def bfs(visited, graph, start):
   visited.append(start)
   queue.append(start)
 
   while queue:          # Creating loop to visit each node
     m = queue.pop(0) 
     m.work()
-    print (m, end = " ") 
+    # print (m, end = " ") 
 
     for neighbour in graph[m]:
       if neighbour not in visited:

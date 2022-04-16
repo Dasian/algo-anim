@@ -50,4 +50,7 @@ have a loop so graph animations will be generated, animated,
 and queued, async stuff for efficiency
 
 TODO:
+make all nodes connected to at least one other node
+be able to print out a randomly generated graph
 create a static graph traversal animation
+

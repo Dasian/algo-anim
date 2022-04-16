@@ -28,13 +28,19 @@ class Graph(object):
         self._graph_dict = graph_dict
         self.isDirected = isDirected
 
+    def get_vertice(self, key):
+        return self._graph_dict[key]
+
     def edges(self, vertice):
         """ returns a list of all the edges of a vertice"""
         return self._graph_dict[vertice]
         
     def all_vertices(self):
-        """ returns the vertices of a graph as a set """
-        return set(self._graph_dict.keys())
+        """ returns the vertices of a graph as a list """
+        verts = []
+        for key in self._graph_dict:
+            verts.append(self._graph_dict[key])
+        return verts
 
     def all_edges(self):
         """ returns the edges of a graph """
@@ -62,21 +68,21 @@ class Graph(object):
         """
         edge = set(edge)
         vertex1, vertex2 = tuple(edge)
-        print(vertex1, vertex2, edge, type(edge), type(vertex1))
-        print(self._graph_dict)
+        #print(vertex1, vertex2, edge, type(edge), type(vertex1))
+        # print(self._graph_dict)
         self._graph_dict[str(vertex1)].add_edge(node=self._graph_dict[str(vertex2)], isDirected=self.isDirected)
 
-    def __generate_edges(self):
+    def generate_edges(self):
         """ A static method generating the edges of the 
             graph "graph". Edges are represented as sets 
             with one (a loop back to the vertex) or two 
             vertices 
         """
-        edges = []
+        edges = set()
         for vertex in self._graph_dict:
             for neighbour in self._graph_dict[vertex].edges:
-                if {neighbour.name, vertex} not in edges:
-                    edges.append({vertex, neighbour.name})
+                if (neighbour.name, vertex) not in edges:
+                    edges.add((vertex, neighbour.name))
         return edges
     
     def __iter__(self):
@@ -92,6 +98,9 @@ class Graph(object):
         for k in self._graph_dict:
             res += str(k) + " "
         res += "\nedges: "
-        for edge in self.__generate_edges():
+        for edge in self.generate_edges():
             res += str(edge) + " "
+        res += "\nobjects: \n"
+        for key in self._graph_dict:
+            res += str(self._graph_dict[key]) + "\n"
         return res
