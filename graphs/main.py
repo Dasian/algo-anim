@@ -4,6 +4,7 @@ import node as gnode
 import random
 import networkx as nx
 import matplotlib.pyplot as plt
+import bfs
 
 start = -1
 end = -1
@@ -47,7 +48,7 @@ def random_graph(n=-1, p=.05 ,isDirected=False):
             E.add(combination)
 
     # Create graph
-    g = graph.Graph()
+    g = graph.Graph(num_nodes=n)
     for v in V:
         vertex = gnode.Node(name=str(v))
         g.add_vertex(vertex)
@@ -62,7 +63,7 @@ def random_graph(n=-1, p=.05 ,isDirected=False):
     while end == start:
         end = random.randint(0, n-1)
     g.get_vertice(str(start)).set_start()
-    g.get_vertice(str(end)).set_goal()
+    g.get_vertice(str(end)).set_end()
 
     return g
 
@@ -81,19 +82,22 @@ nx_graph.add_edges_from(edges)
 
 # color starting and ending node
 color_map = []
-for i in range(0, n):
-    if i == start:
+for i in nx_graph.nodes():
+    if i == str(start):
         color_map.append('green')
-    elif i == end:
+    elif i == str(end):
         color_map.append('red')
     else:
         color_map.append('blue')
 
+# call graph algo
+solution = bfs.bfs(graph=g)
+print("Solution\n", solution)
+
 # draw the graph
-plt.figure(3,figsize=(15,15)) 
+plt.figure(3,figsize=(16,16)) 
 nx.draw_random(nx_graph, with_labels = True, node_color=color_map)
 plt.show()
-# call graph algo
 
 # generating/loading async stuff
 # constant loop

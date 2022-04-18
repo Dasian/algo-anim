@@ -18,7 +18,7 @@ and the value is the custom node object
 
 class Graph(object):
 
-    def __init__(self, graph_dict=None, isDirected=False):
+    def __init__(self, graph_dict=None, isDirected=False, num_nodes=1):
         """ initializes a graph object 
             If no dictionary or None is given, 
             an empty dictionary will be used
@@ -27,6 +27,10 @@ class Graph(object):
             graph_dict = {}
         self._graph_dict = graph_dict
         self.isDirected = isDirected
+        self.num_nodes = num_nodes
+
+    def get_num_nodes(self):
+        return self.num_nodes
 
     def get_vertice(self, key):
         return self._graph_dict[key]
@@ -58,18 +62,9 @@ class Graph(object):
     def add_edge(self, edge):
         """ assumes that edge is of type set, tuple or list; 
             between two vertices can be multiple edges! 
-        edge = set(edge)
-        vertex1, vertex2 = tuple(edge)
-        for x, y in [(vertex1, vertex2), (vertex2, vertex1)]:
-            if x in self._graph_dict:
-                self._graph_dict[x].append(y)
-            else:
-                self._graph_dict[x] = [y]
         """
         edge = set(edge)
         vertex1, vertex2 = tuple(edge)
-        #print(vertex1, vertex2, edge, type(edge), type(vertex1))
-        # print(self._graph_dict)
         self._graph_dict[str(vertex1)].add_edge(node=self._graph_dict[str(vertex2)], isDirected=self.isDirected)
 
     def generate_edges(self):

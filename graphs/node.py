@@ -23,6 +23,8 @@ class Node:
         self.state = state
         self.visited = visited
         self.edges = []
+        self.isStart = False
+        self.isEnd = False
 
     def visit(self):
         self.visited = True
@@ -33,9 +35,11 @@ class Node:
 
     def set_start(self):
         self.state = 'start'
+        self.isStart = True
     
-    def set_goal(self):
-        self.state = 'goal'
+    def set_end(self):
+        self.state = 'end'
+        self.isEnd = True
 
     # adds an edge between this node and the supplied node
     # updates the target node if the graph isn't directed
