@@ -72,15 +72,62 @@ def random_graph(n=-1, p=.05 ,isDirected=False):
 # driver
 def main():
     # generate random graph(s)
-    n = 100
+    n = 10
     print("Randomly Generated Graph (n="+str(n)+")")
     g = random_graph(n)
 
-    # nx graph for printing
+    # TODO: matploit animation library
+    # animate the growth of the entire graph before the algo
+    # edge is (srcNode, destNode)
     edges = g.generate_edges()
-    nx_graph = nx.Graph()
-    nx_graph.add_edges_from(edges)
+    nx_graph = nx.Graph() 
+    color_map = []
+    color_map = color_map + ['blue']*len(g.all_vertices())
+    global start
+    global end
+    # what is the format of an edge?
+    # (srcName, destName)
+    for edge in edges:
+        this, next = edge
 
+        this_color = 'blue'
+        # colors - last leff off here
+        # trying to animate growth with colors
+        # not sure how to keep order of colors
+        if this == str(start):
+            color_map[int(this)] ='green'
+            this_color = 'green'
+        elif this == str(end):
+            color_map[int(this)] ='red'
+            this_color = 'red'
+
+        next_color = 'blue'
+        # colors - last leff off here
+        # trying to animate growth with colors
+        # not sure how to keep order of colors
+        # colors still don't dynamically
+        if next == str(start):
+            color_map[int(next)] ='green'
+            next_color = 'green'
+        elif next == str(end):
+            color_map[int(next)] ='red'
+            next_color = 'red'
+
+        # positioning 
+        if this not in nx_graph.nodes:
+            nx_graph.add_node(this, Position=(random.randrange(0, 100), random.randrange(0, 100)), color=this_color)
+        if next not in nx_graph.nodes:
+            nx_graph.add_node(next, Position=(random.randrange(0, 100), random.randrange(0, 100)), color=next_color)    
+        # if (this, next) not in nx_graph.edges
+        nx_graph.add_edge(this, next)
+        
+        # printing
+        # color_map will be the global color store
+        # pass the subset of the displayed colors
+        nx.draw(nx_graph, with_labels=True, pos=nx.get_node_attributes(nx_graph,'Position'))
+        plt.pause(.50)
+
+    # TODO: implement color map in creation animation
     # color starting and ending node
     color_map = []
     for i in nx_graph.nodes():

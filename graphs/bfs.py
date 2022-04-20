@@ -39,7 +39,7 @@ def bfs(graph):
       node_cnt += 1
       edge_cnt += 1
       if curr.parent != None:
-        curr.start_work(curr.parent)
+        curr.start_edge_work(curr.parent)
       curr.start_work()
       curr = curr.parent
 
