@@ -6,9 +6,6 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import bfs
 
-start = -1
-end = -1
-
 # n is number of nodes
 # p is probability of adding edges
 # returns a graph object
@@ -17,6 +14,9 @@ def random_graph(n=-1, p=.05 ,isDirected=False):
     # need to assign distinct start and end nodes
     if n < 2:
         return None
+
+    # maybe set p to be 1/n^c
+    p = 1/n
     
     # set of vertice indices/names
     V = set([v for v in range(n)])
@@ -63,43 +63,47 @@ def random_graph(n=-1, p=.05 ,isDirected=False):
     while end == start:
         end = random.randint(0, n-1)
     g.get_vertice(str(start)).set_start()
+    g.set_start(g.get_vertice(str(start)))
     g.get_vertice(str(end)).set_end()
 
     return g
 
 
 # driver
+def main():
+    # generate random graph(s)
+    n = 100
+    print("Randomly Generated Graph (n="+str(n)+")")
+    g = random_graph(n)
 
-# generate random graph(s)
-n = 50
-print("Randomly Generated Graph (n="+str(n)+")")
-g = random_graph(n)
+    # nx graph for printing
+    edges = g.generate_edges()
+    nx_graph = nx.Graph()
+    nx_graph.add_edges_from(edges)
 
-# nx 
-edges = g.generate_edges()
-nx_graph = nx.Graph()
-nx_graph.add_edges_from(edges)
+    # color starting and ending node
+    color_map = []
+    for i in nx_graph.nodes():
+        if i == str(start):
+            color_map.append('green')
+        elif i == str(end):
+            color_map.append('red')
+        else:
+            color_map.append('blue')
 
-# color starting and ending node
-color_map = []
-for i in nx_graph.nodes():
-    if i == str(start):
-        color_map.append('green')
-    elif i == str(end):
-        color_map.append('red')
-    else:
-        color_map.append('blue')
+    # call graph algo
+    solution = bfs.bfs(graph=g)
+    print("Shortest Path: ", solution)
 
-# call graph algo
-solution = bfs.bfs(graph=g)
-print("Solution\n", solution)
+    # draw the graph
+    plt.figure(3,figsize=(16,16)) 
+    nx.draw_random(nx_graph, with_labels = True, node_color=color_map)
+    plt.show()
 
-# draw the graph
-plt.figure(3,figsize=(16,16)) 
-nx.draw_random(nx_graph, with_labels = True, node_color=color_map)
-plt.show()
+    # generating/loading async stuff
+    # constant loop
+    # full screen animation
+    # animation queues 
 
-# generating/loading async stuff
-# constant loop
-# full screen animation
-# animation queues 
+if __name__ == '__main__':
+    main()

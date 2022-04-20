@@ -12,47 +12,98 @@
     Conenct to animation driver
 """
 
-visited = []    # List for visited nodes.
-queue = []      # Initialize a queue
 
-# start key
 def bfs(graph):
-  print(graph)
-
-  start = None
-
-  for i in range(0, graph.get_num_nodes()):
-    node = graph.get_vertice(str(i))
-    if node.isStart:
-      start = node
-      print("Start: ", start.name)
-      break
-
-  visited.append(start)
+  # init queue
+  queue = []
+  start = graph.get_start()
+  start.visit()
   queue.append(start)
 
-  path = ''
+  # debug node and edge processing count
+  # tracks num animations done on each obj type
+  node_cnt = 0
+  edge_cnt = 0
 
-  while queue:          # Creating loop to visit each node
-    m = queue.pop(0) 
-    # m.work()
-    # print (m, end = " ") 
+  while queue:
+    
+    # show which node's edges will be checked
+    m = queue.pop(0)
+    m.start_work()
+    node_cnt += 1
+    # show the shortest path to this node
+    curr = m.parent
+    if curr != None:
+      m.start_edge_work(curr)
+    while curr != None:
+      node_cnt += 1
+      edge_cnt += 1
+      if curr.parent != None:
+        curr.start_work(curr.parent)
+      curr.start_work()
+      curr = curr.parent
 
-    path += '\nVisiting: ' + m.name + '\nNeighbors: '
-    m.visit()
-
+    # process all neighbors of dequeued node
     for neighbor in m.edges:
-      if neighbor.isEnd:
-        m.visit()
-        path += neighbor.name + ' '
-        print("End: ", neighbor.name)
 
-        print(graph)
-        return path
-      elif neighbor not in visited:
-        path += neighbor.name + ' '
-        visited.append(neighbor)
-        m.visit()
-        queue.append(neighbor)
-        #neighbor.work()
+      # visit edge
+      # work on edge
+      edge_cnt += 2
+      m.visit_edge(neighbor)
+      m.start_edge_work(neighbor)
+
+      # process unvisited node
+      if neighbor.visited is False:
+
+        # show which node is being checked for end
+        neighbor.visit()
+        neighbor.start_work()
+        neighbor.parent = m
+        node_cnt += 2
+        
+        # found
+        if neighbor.isEnd:
+          path = []
+          curr = neighbor
+          while curr != None:
+            # retrieve shortest path
+            path.append(curr.name)
+
+            # mark the shortest path
+            # found node
+            curr.found()
+            node_cnt += 1
+            # found edge
+            edge_cnt += 1
+            if curr.parent != None:
+              curr.found_edge(curr.parent)
+
+            curr = curr.parent
+
+          # statistic debug 
+          print("Node Animations: ",node_cnt)
+          print("Edge Animations: ", edge_cnt)
+
+          return path[::-1]
+        # not found
+        else:
+          queue.append(neighbor)
+          neighbor.end_work() 
+          node_cnt += 1
+          # end work on edge
+          edge_cnt += 1
+          neighbor.end_edge_work(m)
+    
+    # show this path is done
+    m.end_work()
+    if m.parent != None:
+      m.end_edge_work(m.parent)
+    curr = m.parent
+    while curr != None:
+      curr.end_work()
+      if curr.parent != None:
+        curr.end_edge_work(curr.parent)
+      curr = curr.parent
+      node_cnt += 1
+      edge_cnt += 1
 

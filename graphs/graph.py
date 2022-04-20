@@ -29,6 +29,12 @@ class Graph(object):
         self.isDirected = isDirected
         self.num_nodes = num_nodes
 
+    def set_start(self, start):
+        self.start = start
+
+    def get_start(self):
+        return self.start
+
     def get_num_nodes(self):
         return self.num_nodes
 
