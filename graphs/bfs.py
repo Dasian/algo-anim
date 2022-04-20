@@ -12,7 +12,9 @@
     Conenct to animation driver
 """
 
-
+# takes as input the custom graph object
+# returns the shortest path from start to end
+# as an ordered list
 def bfs(graph):
   # init queue
   queue = []
