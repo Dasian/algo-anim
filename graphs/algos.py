@@ -109,3 +109,72 @@ def bfs(graph):
       node_cnt += 1
       edge_cnt += 1
 
+def bfs(V, E, start, end, isDirected):
+	"""
+		Returns the shortest path from start to end using bfs
+		V is list of nodes
+		E is list of (start, end) tuples
+		Returns [start, ... , end]
+	"""
+	# create graph dict
+	g = {}
+	for v in V:
+		g[v] = []
+	for e in E:
+		tmp = g[e[0]]
+		tmp.append(e[1])
+		g[e[0]] = tmp
+
+  # init queue
+	queue = [start]
+	visited = [False for i in range(len(V))]  
+	parent = [-1 for i in range(len(V))]
+	dist = [0 for i in range(len(V))]
+	path = []
+
+	while queue:
+		curr = queue.pop(0)
+		visited[curr] = True
+		for neighbor in g[curr]:
+			if not visited[neighbor]:
+				queue.append(neighbor)
+				parent[neighbor] = curr
+				dist[neighbor] = dist[parent[neighbor]] + 1
+				visited[neighbor] = True
+				if neighbor == end:
+					p = end 
+					while p != -1:
+						path.append(p) 
+						p = parent[p]
+					return path[::-1]
+
+def isConnected(V, E, isDirected):
+	"""
+		Returns True if a graph is connected
+	"""
+	# create graph dict
+	g = {}
+	for v in V:
+		g[v] = []
+	for e in E:
+		tmp = g[e[0]]
+		tmp.append(e[1])
+		g[e[0]] = tmp
+
+	# init
+	visited = [False for x in range(len(V))]
+	queue = [V[0]]
+	num_visited = 0
+
+	# bfs and count visited nodes
+	while queue:
+		curr = queue.pop(0)
+		visited[curr] = True
+		num_visited += 1
+		if num_visited == len(V) - 1:
+			return True
+		for neighbor in g[curr]:
+			if not visited[neighbor]:
+				queue.append(neighbor)
+
+	return False

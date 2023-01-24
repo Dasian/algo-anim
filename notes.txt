@@ -54,3 +54,32 @@ make all nodes connected to at least one other node
 be able to print out a randomly generated graph
 create a static graph traversal animation
 
+1.21.23
+Hey again. This project is kinda messy and I feel like working on it again.
+I'm going to comb throught it all and write down the current capabilities and
+where I want to go with it all.
+
+I can currently create and print a randomly generated graph using matplot and networkx
+The graph creation can also be animated using those libraries
+These capabilities are located in graphs/main.py and don't use the created graph classes
+
+I want to port this to a better animation library like manim. I'm assuming main.py is
+only used for testing. Or at least that's the way I'm going to use it for now.
+
+What you should try to do first is find an algo for generating planar graphs.
+Or you can make your own, maybe add variations to the ones you find.
+Then maybe try to figure out how to generate these graphs and these scenes
+into manim.
+
+1.22.23
+Got some algos for planar graph generation. I'll implement them, but then I need to
+figure out how to print them out in a nice way.
+
+Next you need to figure out how to print a simple graph in manim. After that, you
+can try to put a generated graph in manim. Or you could figure out how to animate
+a static example for bfs. The next two steps seem interchangeable but both need to
+be completed to reach your goal.
+
+1.23.23
+Goal rn is to create a static bfs animation scene and then figure out how add 
+dynamic generation to it.
