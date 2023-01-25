@@ -83,3 +83,10 @@ be completed to reach your goal.
 1.23.23
 Goal rn is to create a static bfs animation scene and then figure out how add 
 dynamic generation to it.
+
+1.24.23
+Worked a lot on the animation states. I revised a lot of the graph data 
+stucture and changed the bfs animation steps. I haven't gotten around to 
+testing yet though. There are some bugs I need to work out when I mark the
+currently processed path. When a node/edge aren't part of the process path,
+I need to have code that change it back to a visited state.

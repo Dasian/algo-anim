@@ -1,25 +1,25 @@
 """
-    Breadth First Search
-    Takes as input 
-    - a graph
-    - start node
-    - goal node
-    Changes node state for animation
+	Collection of graph algorithms
 
-    Implement the algorithm
-    Print out the steps
-    Print out the results
-    Conenct to animation driver
+	Implemented: BFS
+	Planned: DFS, Djikstra
+
+	TODO:
 """
+import graph as Graph
 
-# takes as input the custom graph object
-# returns the shortest path from start to end
-# as an ordered list
-def bfs(graph):
-  # init queue
-  queue = []
-  start = graph.get_start()
-  start.visit()
+# TODO
+# generates an ordered list of 
+# vertex_config and edge_config
+# states for every bfs algorithm step
+# returns [(vertex_config, edge_config), ...]
+# for a manim graph object
+def bfs_states(V, E, start, end, isDirected=False):
+  # init
+	graph = Graph(V, E, start, end, isDirected)
+	queue = []
+	graph.add_anim_state({GraphState.Visit: [start]})# keep this? part of init
+	graph.visit(start)
   queue.append(start)
 
   # debug node and edge processing count
@@ -29,82 +29,97 @@ def bfs(graph):
 
   while queue:
     
-    # show which node's edges will be checked
+    # show which node is being processed
     m = queue.pop(0)
-    m.start_work()
+		graph.add_anim_state({GraphState.PROCESS: [m]})	
     node_cnt += 1
-    # show the shortest path to this node
+	
+    # show current working path
+		# might have a bug since a path isn't changed
+		# back to visited when it's not part of the
+		# process path anymore
+		process_path = []
     curr = m.parent
     if curr != None:
-      m.start_edge_work(curr)
+			process_path.append(curr, m)
     while curr != None:
       node_cnt += 1
       edge_cnt += 1
       if curr.parent != None:
-        curr.start_edge_work(curr.parent)
-      curr.start_work()
-      curr = curr.parent
+				process_path.append((graph.get_parent(curr), curr))
+			process_path.append(curr)
+      curr = graph.get_parent(curr)
+		if len(process_path) != 0:
+			updates = {GraphState.PROCESS: process_path}
+			graph.add_anim_state(updates)
 
     # process all neighbors of dequeued node
-    for neighbor in m.edges:
+		# put neighbors in Graph or Node obj?
+    for neighbor in graph.edges(m):
 
       # visit edge
       # work on edge
-      edge_cnt += 2
-      m.visit_edge(neighbor)
-      m.start_edge_work(neighbor)
+			# TODO figure out what i want here
+      edge_cnt += 1
+			graph.add_anim_state({GraphState.QUEUED: [(m, neighbor)]})
 
       # process unvisited node
-      if neighbor.visited is False:
+      if graph.is_visited(neighbor) is False:
 
         # show which node is being checked for end
-        neighbor.visit()
-        neighbor.start_work()
-        neighbor.parent = m
-        node_cnt += 2
+				# a check state?
+				graph.add_anim_state({GraphState.PROCESS: [neighbor]})
+				graph.set_parent(neighbor, m)
+        node_cnt += 1
         
         # found
-        if neighbor.isEnd:
+        if graph.get_end() == neighbor:
           path = []
+					anim_path = []
           curr = neighbor
           while curr != None:
             # retrieve shortest path
-            path.append(curr.name)
+            path.append(curr)
 
             # mark the shortest path
             # found node
-            curr.found()
+						anim_path.append(curr)
+            graph.update_node(curr, GraphState.FOUND)
             node_cnt += 1
             # found edge
             edge_cnt += 1
             if curr.parent != None:
-              curr.found_edge(curr.parent)
+							anim_path.append(curr.parent, curr)
+              graph.update_edge(curr, curr.parent, GraphState.FOUND)
 
-            curr = curr.parent
+            curr = graph.get_parent(curr)
 
           # statistic debug 
-          print("Node Animations: ",node_cnt)
+          print("Node Animations: ", node_cnt)
           print("Edge Animations: ", edge_cnt)
 
-          return path[::-1]
+					update = {GraphState.FOUND: anim_path}
+					graph.add_anim_state(update)	
+          return graph.anim_states()
+
         # not found
         else:
           queue.append(neighbor)
-          neighbor.end_work() 
+          graph.update_node(neighbor, GraphState.VISIT) 
           node_cnt += 1
           # end work on edge
           edge_cnt += 1
-          neighbor.end_edge_work(m)
+          graph.update_edge(neighbor, m, GraphState.VISIT)
     
     # show this path is done
-    m.end_work()
+    graph.end_work(m)
     if m.parent != None:
-      m.end_edge_work(m.parent)
+      graph.end_edge_work(m, m.parent)
     curr = m.parent
     while curr != None:
-      curr.end_work()
+      graph.end_work(curr)
       if curr.parent != None:
-        curr.end_edge_work(curr.parent)
+        graph.end_edge_work(curr, curr.parent)
       curr = curr.parent
       node_cnt += 1
       edge_cnt += 1

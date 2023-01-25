@@ -1,33 +1,58 @@
-""" A Python Class
-A simple Python graph class, demonstrating the essential 
-facts and functionalities of graphs.
-
-Attributes:
-directed
-start node
-goal node
-
-kept as a dictionary where the key is the name
-and the value is the custom node object
 """
+	Custom Graph class used to track 
+	algorithm animation states
 
-"""
-    Consider creating a custom node class
-    Could keep track of visited nodes for ending animation stuff
+	G = {"name": Node}
+
+	TODO:
+		add animation state tracking
+		add/define custom colors
+		update graph methods + attributes
+		clean up!
 """
 
 class Graph(object):
 
-    def __init__(self, graph_dict=None, isDirected=False, num_nodes=1):
-        """ initializes a graph object 
-            If no dictionary or None is given, 
-            an empty dictionary will be used
-        """
-        if graph_dict == None:
-            graph_dict = {}
-        self._graph_dict = graph_dict
-        self.isDirected = isDirected
-        self.num_nodes = num_nodes
+    def __init__(self, V, E, start, end, isDirected=False):
+		self.start = start
+		self.end = end
+		self.parents = [None for x in range(len(V))] # parents[vert] = vert.parent
+		self.visited = [False for x in range(len(V))] # visited[vert] = vert.isVisited
+		self.graph_dict = {}
+		self.anim_states = [] # ordered list of (vc, ec)
+
+		# graph_dict[vertice] = [edges]
+		for v in V:
+			self.graph_dict[v] = [] 
+		for e in E:
+			tmp = self.graph_dict[e[0]]
+			tmp.append(e[1])
+			self.graph_dict[e[0]] = tmp
+
+		# this needs to be specified
+		self.state_colors = {} # {VISITED: YELLOW}
+
+	def add_anim_state(self, updates):
+		"""
+			Adds all changes in the updates dictionary as one
+			animation state
+			This lets you update multiple objects at the same time
+			updates = {GraphState.xxx: [Node1, Node2, Edge1, ...], ...}
+			edge = (src_node, dest_node)
+
+			updates above is slightly more space efficient than list of tuples
+			with a lot of repeating states
+		"""
+		vc = {}
+		ec = {}
+		for k in updates.keys():
+			for o in updates[k]:
+				if type(o) is Node:
+					vc[o.id] = {o.id: {"fill_color": self.state_colors[k]}}
+				elif type(o) is tuple:
+					ec[o] = {o: {"stroke_color": self.state_colors[k]}}
+		anim_state = (vc, ec)
+		self.anim_states.append(anim_state)
 
     def set_start(self, start):
         self.start = start
@@ -35,21 +60,33 @@ class Graph(object):
     def get_start(self):
         return self.start
 
-    def get_num_nodes(self):
-        return self.num_nodes
+	def set_end(self, end):
+		self.end = end
 
-    def get_vertice(self, key):
-        return self._graph_dict[key]
+	def get_end(self):
+		return self.end
+
+	def visit(self, node):
+		self.visited[node] = True
+
+	def is_visited(self, node):
+		return self.visited[node]
+
+	def set_parent(self, node, parent):
+		self.parents[node] = parent
+
+	def get_parent(self, node):
+		return self.parents[node]
 
     def edges(self, vertice):
         """ returns a list of all the edges of a vertice"""
-        return self._graph_dict[vertice]
+        return self.graph_dict[vertice]
         
     def all_vertices(self):
         """ returns the vertices of a graph as a list """
         verts = []
-        for key in self._graph_dict:
-            verts.append(self._graph_dict[key])
+        for key in self.graph_dict:
+            verts.append(self.graph_dict[key])
         return verts
 
     def all_edges(self):
@@ -57,13 +94,9 @@ class Graph(object):
         return self.generate_edges()
 
     def add_vertex(self, vertex):
-        """ If the vertex "vertex" is not in 
-            self._graph_dict, a key "vertex" with an empty
-            list as a value is added to the dictionary. 
-            Otherwise nothing has to be done. 
-        """
-        if vertex.name not in self._graph_dict:
-            self._graph_dict[vertex.name] = vertex
+        """ adds vertex to dict """
+        if vertex.name not in self.graph_dict:
+            self.graph_dict[vertex.name] = vertex
 
     def add_edge(self, edge):
         """ assumes that edge is of type set, tuple or list; 
@@ -71,7 +104,7 @@ class Graph(object):
         """
         edge = set(edge)
         vertex1, vertex2 = tuple(edge)
-        self._graph_dict[str(vertex1)].add_edge(node=self._graph_dict[str(vertex2)], isDirected=self.isDirected)
+        self.graph_dict[vertex1].add_edge(node=self.graph_dict[vertex2], isDirected=self.isDirected)
 
     def generate_edges(self):
         """ A static method generating the edges of the 
@@ -80,14 +113,14 @@ class Graph(object):
             vertices 
         """
         edges = set()
-        for vertex in self._graph_dict:
-            for neighbour in self._graph_dict[vertex].edges:
+        for vertex in self.graph_dict:
+            for neighbour in self.graph_dict[vertex].edges:
                 if (neighbour.name, vertex) not in edges:
                     edges.add((vertex, neighbour.name))
         return edges
     
     def __iter__(self):
-        self._iter_obj = iter(self._graph_dict)
+        self._iter_obj = iter(self.graph_dict)
         return self._iter_obj
     
     def __next__(self):
@@ -96,12 +129,12 @@ class Graph(object):
 
     def __str__(self):
         res = "vertices: "
-        for k in self._graph_dict:
+        for k in self.graph_dict:
             res += str(k) + " "
         res += "\nedges: "
         for edge in self.generate_edges():
             res += str(edge) + " "
         res += "\nobjects: \n"
-        for key in self._graph_dict:
-            res += str(self._graph_dict[key]) + "\n"
+        for key in self.graph_dict:
+            res += str(self.graph_dict[key]) + "\n"
         return res
