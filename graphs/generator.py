@@ -6,7 +6,7 @@
 		Random planar (no crossing edges)
 """
 from itertools import combinations
-import graph as Graph
+from graph import *
 import random
 
 def random_graph(n=-1, p=.05 ,isDirected=False):
@@ -46,11 +46,12 @@ def random_graph(n=-1, p=.05 ,isDirected=False):
 			E.append(combination)
 
 	# put generated graph into custom graph data structure
-	return Graph(V, E, start, end, isDirected)
+	g = Graph(V, E, start, end, isDirected)
+	return g
 
 def random_planar_graph(n=-1, p=.05, isDirected=False):
 	""" 
-		Generates a random connect planar graph (no crossing edges)
+		Generates a random connected planar graph (no crossing edges)
 		
 		n is number of nodes
 		p is probability of losing edges
@@ -106,7 +107,8 @@ def random_planar_graph(n=-1, p=.05, isDirected=False):
 			i += 2
 
 	# place values into custom graph object
-	return Graph(V, E, start, end, isDirected)
+	g = Graph(V, E, start, end, isDirected)
+	return g
 
 def isConnected(V, E, isDirected=False):
 	"""
@@ -134,10 +136,10 @@ def isConnected(V, E, isDirected=False):
 		curr = queue.pop(0)
 		visited[curr] = True
 		num_visited += 1
-		if num_visited == len(V) - 1:
+		if num_visited == len(V):
 			return True
 		for neighbor in g[curr]:
-			if not visited[neighbor]:
+			if not visited[neighbor] and neighbor not in queue:
 				queue.append(neighbor)
 
 	return False
