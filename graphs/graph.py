@@ -46,6 +46,11 @@ class Graph(object):
 				if type(o) is int and o != self.start and o != self.end:
 					vc[o] = {o: {"fill_color": config.state_colors[k]}}
 				elif type(o) is tuple:
+					# manim/networkx maybe doesn't color an edge correctly
+					# (n1, n2) if n1 > n2
+					# so n1 < n2 always
+					if o[0] > o[1]:
+						o = (o[1], o[0])
 					ec[o] = {o: {"stroke_color": config.state_colors[k]}}
 		anim_state = (vc, ec)
 		self.anim_states.append(anim_state)
@@ -84,10 +89,7 @@ class Graph(object):
 		
 	def all_vertices(self):
 		""" returns the vertices of a graph as a list """
-		verts = []
-		for key in self.graph_dict:
-			verts.append(self.graph_dict[key])
-		return verts
+		return self.graph_dict.keys()
 
 	def all_edges(self):
 		""" returns the edges of a graph """
@@ -112,11 +114,11 @@ class Graph(object):
 			with one (a loop back to the vertex) or two 
 			vertices 
 		"""
-		edges = set()
+		edges = []
 		for vertex in self.graph_dict:
-			for neighbour in self.graph_dict[vertex].edges:
-				if (neighbour.name, vertex) not in edges:
-					edges.add((vertex, neighbour.name))
+			for neighbour in self.graph_dict[vertex]:
+				if (neighbour, vertex) not in edges:
+					edges.append((vertex, neighbour))
 		return edges
 	
 	def __iter__(self):
