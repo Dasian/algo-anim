@@ -1,74 +1,63 @@
+"""
+	Generates custom graph objects (see graph.py)
+
+	Supported graphs:
+		Randomly created edges
+		Random planar (no crossing edges)
+"""
 from itertools import combinations
-import graph
-import node as gnode
+import graph as Graph
 import random
-import algos
 
-# n is number of nodes
-# p is probability of adding edges
-# returns custom graph object
-# TODO guarantee the graph is planar
 def random_graph(n=-1, p=.05 ,isDirected=False):
-    
-    # need to assign distinct start and end nodes
-    if n < 2:
-        return None
+	"""
+		Generates a random connected graph 
+		
+		n is number of nodes
+		p is probability of adding edges
+		returns custom graph obj (graph.py)
+	"""
+	if n < 2:
+		raise("Random graph generation needs at least 2 nodes to assign start and end")
+	
+	# init
+	V = [v for v in range(n)]
+	E = []
 
-    # maybe set p to be 1/n^c
-    p = 1/n
-    
-    # set of vertices indices/names
-    V = [v for v in range(n)]
+	# assign start and end nodes
+	start = random.randint(0, n-1)
+	end = random.randint(0, n-1)
+	while end == start: end = random.randint(0, n-1)
 
-    # set of edge connections
-    # (this_node, connected_node)
-    E = []
+	# randomy connect the graph (guarantees path btwn start and end)
+	visited = []
+	unvisited = [x for x in range(n)]
+	curr = unvisited.pop(random.randint(0, n-1))
+	while len(visited) < n:
+		visited.append(curr)
+		adj = unvisited.pop(random.randint(0, len(visited)-1))
+		E.append((curr, adj))
+		curr = adj
 
-    # randomly connect all vertices
-    # (guarantees a path between start and end)
-    initialSet = [v for v in range(n)]
-    visitedSet = []
-    curVertex = initialSet.pop(random.randrange(len(initialSet)))
-    visitedSet.append(curVertex)
+	# Generate random edges
+	for combination in combinations(V, 2):
+		a = random.random()
+		if a < p and combination not in E:
+			E.append(combination)
 
-    # loop through all the vertices, connecting them randomly
-    while initialSet:
-        adjVertex = initialSet.pop(random.randrange(len(initialSet)))
-        edge = (curVertex, adjVertex)
-        E.append(edge)
-        visitedSet.append(adjVertex)
-        curVertex = adjVertex
-
-    # Generate random edges
-    for combination in combinations(V, 2):
-        a = random.random()
-        if a < p and combination not in E:
-            E.append(combination)
-
-    # put generated graph into custom graph data structure
-    g = graph.Graph(num_nodes=n)
-    for v in V:
-        vertex = gnode.Node(name=str(v))
-        g.add_vertex(vertex)
-    for e in E:
-        g.add_edge(e)
-
-    # assign start and end nodes
-    global start
-    global end
-    start = random.randint(0, n-1)
-    end = random.randint(0, n-1)
-    while end == start: end = random.randint(0, n-1)
-    g.get_vertice(str(start)).set_start()
-    g.set_start(g.get_vertice(str(start)))
-    g.get_vertice(str(end)).set_end()
-
-    return g
+	# put generated graph into custom graph data structure
+	return Graph(V, E, start, end, isDirected)
 
 def random_planar_graph(n=-1, p=.05, isDirected=False):
-	""" Generates a random planar graph with n nodes, prob p of losing edges"""
+	""" 
+		Generates a random connect planar graph (no crossing edges)
+		
+		n is number of nodes
+		p is probability of losing edges
+		returns custom graph obj (graph.py)
+	"""
 	if n < 3:
-		return None
+		raise('Planar graph generation requires at least 3 nodes')
 
 	# start with K3 graph and a list of faces
 	# (a face is a group of nodes)
@@ -89,8 +78,6 @@ def random_planar_graph(n=-1, p=.05, isDirected=False):
 			F.append((e, newVert, face[(i+1)%len(face)]))
 
 	# assign start and end nodes
-	global start
-	global end
 	start = random.randint(0, n-1)
 	end = random.randint(0, n-1)
 	while end == start: end = random.randint(0, n-1)
@@ -106,7 +93,7 @@ def random_planar_graph(n=-1, p=.05, isDirected=False):
 			# remove duplicate
 			if not isDirected:
 				tmp2 = E.pop(i)
-			if algos.isConnected(V, E, isDirected):
+			if isConnected(V, E, isDirected):
 				i -= 2
 			else:
 				# removal causes disconnect, put it back!!
@@ -118,24 +105,39 @@ def random_planar_graph(n=-1, p=.05, isDirected=False):
 		else:
 			i += 2
 
-	return V, E	
+	# place values into custom graph object
+	return Graph(V, E, start, end, isDirected)
 
-def main():
-	# TODO add cmd flags
+def isConnected(V, E, isDirected=False):
+	"""
+		Returns True if a graph is connected
 
-    # generate random graph(s)
-    n = 25
-    print("Randomly Generated Graph (n="+str(n)+")")
-    g = random_graph(n)
+		V is a list of vertices (ints)
+		E is a list of edges/vertice tuples (vert1, vert2)
+	"""
+	# create graph dict
+	g = {}
+	for v in V:
+		g[v] = []
+	for e in E:
+		tmp = g[e[0]]
+		tmp.append(e[1])
+		g[e[0]] = tmp
 
-    # call graph algo
-    solution = algos.bfs(graph=g)
-    print("Shortest Path: ", solution)
+	# init
+	visited = [False for x in range(len(V))]
+	queue = [V[0]]
+	num_visited = 0
 
-    # generating/loading async stuff
-    # constant loop
-    # full screen animation
-    # animation queues 
+	# bfs and count visited nodes
+	while queue:
+		curr = queue.pop(0)
+		visited[curr] = True
+		num_visited += 1
+		if num_visited == len(V) - 1:
+			return True
+		for neighbor in g[curr]:
+			if not visited[neighbor]:
+				queue.append(neighbor)
 
-if __name__ == '__main__':
-    main()
+	return False
