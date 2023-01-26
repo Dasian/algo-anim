@@ -130,3 +130,7 @@ dmypy.json
 
 # media folder (generated animations)
 media/
+
+# vim temporary files
+*.swp
+*.swo
