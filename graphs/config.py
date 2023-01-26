@@ -2,6 +2,7 @@
 	List of custom config values
 """
 from manim.utils.color import Colors
+from enum import Enum
 
 # states for nodes/edges of a graph
 class GraphState(Enum):

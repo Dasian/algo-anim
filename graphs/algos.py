@@ -63,7 +63,7 @@ def bfs_states(graph):
 		for neighbor in graph.edges(m):
 
 			# check/queue unvisited neighbors
-			if graph.is_visited(neighbor) is False:
+			if graph.is_visited(neighbor) is False and neighbor not in queue:
 
 				# animate check neighbor
 				graph.add_anim_state({GraphState.CHECK: [(m, neighbor), neighbor]})
