@@ -9,13 +9,13 @@ class BFS(Scene):
 	def construct(self):
 		
 		# generated graph settings
-		n = 5	# number of nodes
-		p = .3	# probability of removing an edge
+		n = 15	# number of nodes
+		p = .7	# probability of removing an edge
 		
 		# manim graph settings
 		labels = True
-		layout = "random"
-		layout_scale = 4
+		layout = "circular"
+		layout_scale = 3
 
 		generated_graph = generator.random_planar_graph(n, p)
 		V = generated_graph.all_vertices()
@@ -44,14 +44,13 @@ class BFS(Scene):
 
 			# apply state changes
 			for k in vc.keys():
-				curr_vc[k] = vc[k]
+				curr_vc[k] = vc[k][k]
 			for k in ec.keys():
-				curr_ec[k] = ec[k]			
+				curr_ec[k] = ec[k][k]
 
 			# render an animation state
-			# TODO get the right transition funcs
 			next_graph = Graph(V, E, labels=labels, layout=layout, layout_scale=layout_scale, vertex_config=curr_vc, edge_config=curr_ec)
-			self.play(TransformMatchingShapes(manim_graph, next_graph))
+			self.play(ReplacementTransform(manim_graph, next_graph))
 			manim_graph = next_graph
 
 		self.play(Uncreate(manim_graph), run_time=2)
