@@ -1,26 +1,26 @@
 """
 	List of custom config values
 """
+from manim.utils.color import Colors
 
-import Colors
-
-# Process node
-# when done processing,
-# the node is visited
-# The process state
-# should be the current
-# working position
+# states for nodes/edges of a graph
 class GraphState(Enum):
 	DEFAULT = 0
 	QUEUED = 1
 	PROCESS = 2
-	VISIT = 3
-	FOUND = 4
-	START = 5
-	END = 6
+	VISITED = 3
+	CHECK = 4
+	FOUND = 5
+	START = 6
+	END = 7
 
-# try to figure out what
-# states you need and
-# what color to set them
-# (make changing color
-# easy for the user)
+state_colors = {
+	GraphState.DEFAULT: Colors.light_gray.value,
+	GraphState.QUEUED: Colors.blue_d.value ,
+	GraphState.PROCESS: Colors.purple_d.value ,
+	GraphState.VISITED: Colors.yellow_b.value ,
+	GraphState.CHECK: Colors.maroon_b.value ,
+	GraphState.FOUND: Colors.green_d.value ,
+	GraphState.START: Colors.pure_green.value ,
+	GraphState.END: Colors.pure_red.value
+}
