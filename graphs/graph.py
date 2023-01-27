@@ -26,7 +26,6 @@ class Graph(object):
 			tmp.append(e[1])
 			self.graph_dict[e[0]] = tmp
 
-
 	def add_anim_state(self, updates):
 		"""
 			Adds all changes in the updates dictionary as one

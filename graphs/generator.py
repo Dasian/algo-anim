@@ -1,5 +1,8 @@
 """
 	Generates custom graph objects (see graph.py)
+	Note: for two connected nodes, a generator
+	needs to have both (n1, n2) and (n2, n1) if
+	the graph is undirected
 
 	Supported graphs:
 		Randomly created edges
@@ -14,7 +17,7 @@ def random_graph(n=-1, p=.05 ,isDirected=False):
 		Generates a random connected graph 
 		
 		n is number of nodes
-		p is probability of adding edges
+		p is probability of removing edges
 		returns custom graph obj (graph.py)
 	"""
 	if n < 2:
@@ -33,10 +36,12 @@ def random_graph(n=-1, p=.05 ,isDirected=False):
 	visited = []
 	unvisited = [x for x in range(n)]
 	curr = unvisited.pop(random.randint(0, n-1))
-	while len(visited) < n:
+	while len(unvisited) > 0:
 		visited.append(curr)
-		adj = unvisited.pop(random.randint(0, len(visited)-1))
+		adj = unvisited.pop(random.randint(0, len(unvisited)-1))
 		E.append((curr, adj))
+		if not isDirected:
+			E.append((adj, curr))
 		curr = adj
 
 	# Generate random edges
@@ -44,6 +49,8 @@ def random_graph(n=-1, p=.05 ,isDirected=False):
 		a = random.random()
 		if a < p and combination not in E:
 			E.append(combination)
+			if not isDirected:
+				E.append((combination[1], combination[0]))
 
 	# put generated graph into custom graph data structure
 	g = Graph(V, E, start, end, isDirected)
@@ -75,7 +82,8 @@ def random_planar_graph(n=-1, p=.05, isDirected=False):
 		for i in range(len(face)):
 			e = face[i]
 			E.append((newVert, e))
-			E.append((e, newVert)) # makes things work, graph direction
+			if not isDirected:
+				E.append((e, newVert)) # makes things work, graph direction
 			F.append((e, newVert, face[(i+1)%len(face)]))
 
 	# assign start and end nodes
