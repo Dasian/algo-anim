@@ -5,7 +5,7 @@
 	TODO:
 		clean up!
 """
-import config
+from . import config
 
 class Graph(object):
 

@@ -9,7 +9,7 @@
 		Random planar (no crossing edges)
 """
 from itertools import combinations
-from graph import *
+from .graph import *
 import random
 
 def random_graph(n=-1, p=.05 ,isDirected=False):

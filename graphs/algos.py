@@ -6,7 +6,7 @@
 
 	TODO:
 """
-from config import *
+from .config import *
 
 def bfs_states(graph):
 	"""
