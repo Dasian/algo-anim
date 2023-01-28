@@ -1,29 +1,30 @@
 from manim import *
 
 # manim -pql scenes.py BFS
-import generator
-import algos
-from config import * 
+from . import generator
+from . import algos
+from .config import * 
 
 class BFS(Scene):
-	def construct(self):
-		
-		# generated graph settings
-		n = 15	# number of nodes
-		p = .7	# probability of removing an edge
-		
+	def __init__(self):
+		super().__init__()
+		# graph generator settings
+		self.n = 5	# num nodes
+		self.p = .5	# probability of removing an edge
 		# manim graph settings
-		labels = True
-		layout = "circular"
-		layout_scale = 3
+		self.labels = True
+		self.layout = "circular"
+		self.layout_scale = 3
 
-		generated_graph = generator.random_planar_graph(n, p)
+	def construct(self):
+
+		# generate a graph
+		generated_graph = generator.random_graph(self.n, self.p)
 		V = generated_graph.all_vertices()
 		E = generated_graph.all_edges()
+		manim_graph = Graph(V, E, labels=self.labels, layout=self.layout, layout_scale=self.layout_scale)	
 
-		manim_graph = Graph(V, E, labels=labels, layout=layout, layout_scale=layout_scale)	
-
-		# init all manim node and edge colors
+		# init node and edge colors
 		curr_vc = {}
 		curr_ec = {}
 		for v in V:
@@ -48,11 +49,12 @@ class BFS(Scene):
 			for k in ec.keys():
 				curr_ec[k] = ec[k][k]
 
-			# render an animation state
-			next_graph = Graph(V, E, labels=labels, layout=layout, layout_scale=layout_scale, vertex_config=curr_vc, edge_config=curr_ec)
+			# render one animation state/step
+			next_graph = Graph(V, E, labels=self.labels, layout=self.layout, layout_scale=self.layout_scale, vertex_config=curr_vc, edge_config=curr_ec)
 			self.play(ReplacementTransform(manim_graph, next_graph))
 			manim_graph = next_graph
 
+		self.wait(2)
 		self.play(Uncreate(manim_graph), run_time=2)
 		self.wait(2)
 
