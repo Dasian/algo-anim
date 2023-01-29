@@ -16,7 +16,48 @@ def main():
 	# --inf --infinite
 	# --nw --num_workers [num]
 	# --a --algo = ["BFS, "DFS", "sort", "insertion-sort"]
+	init()
 
+	# TODO user controlled input
+	global is_infinite
+	global start_time
+	num_workers = 2
+	algo = "BFS"
+	is_infinite = False
+	start_time = time.time()
+	max_runtime = 60 	# in seconds
+
+	# Note: you can't have a playlist using xdg-open
+	playback_queue = mp.Queue()
+
+	# multiprocessing shenanigans >:)
+	# start playback_worker, it will wait until something is added to the playback queue
+	pb_proc = mp.Process(target=playback_worker, args=(playback_queue,), daemon=True)
+	pb_proc.start()
+
+	# start n render_workers
+	procs = []
+	for i in range(num_workers):
+		p = mp.Process(target=render_worker, args=(i,algo,playback_queue,conf_template), daemon=True)
+		# callback when proc finishes to start new render_worker?
+		p.start()
+		time.sleep(1)	# don't remove this, there's a race condition in manim when creating mobjects
+		procs.append(p)
+	
+	# let threads run until time limit
+#	while is_infinite or uptime() < max_runtime:
+#		if not is_infinite:
+#			time.sleep(max_runtime - uptime())
+
+	# join render workers for graceful shutdown?
+	print('joining procs: ')
+	for i in range(len(procs)):
+		p = procs[i]
+		p.join()
+		print('proc ' + str(i) + ' finished')
+	
+
+def init():
 	# os specific init
 	global os_open
 	curr_os = platform.system()
@@ -47,47 +88,10 @@ def main():
 		"disable_caching": True,
 		"output_file": 'tmp',	# will be replaced with the filename
 		"media_dir": media_dir,	# changes based on os
-		"verbosity": "INFO",
+		"verbosity": "WARNING",
 		"partial_movie_dir": "{video_dir}/partial_movie_files/"
 	}
 
-	# Note: you can't have a playlist using xdg-open
-	playback_queue = mp.Queue()
-
-	# TODO user controlled input
-	global is_infinite
-	global start_time
-	num_workers = 2
-	algo = "BFS"
-	is_infinite = False
-	start_time = time.time()
-	max_runtime = 60 	# in seconds
-
-	# multiprocessing shenanigans >:)
-	# start playback_worker, it will wait until something is added to the playback queue
-	pb_proc = mp.Process(target=playback_worker, args=(playback_queue,), daemon=True)
-	pb_proc.start()
-
-	# start n render_workers
-	procs = []
-	for i in range(num_workers):
-		p = mp.Process(target=render_worker, args=(i,algo,playback_queue,conf_template), daemon=True)
-		# callback when proc finishes to start new render_worker?
-		p.start()
-		procs.append(p)
-	
-	# let threads run until time limit
-#	while is_infinite or uptime() < max_runtime:
-#		if not is_infinite:
-#			time.sleep(max_runtime - uptime())
-
-	# join render workers for graceful shutdown?
-	print('joining procs: ')
-	for i in range(len(procs)):
-		p = procs[i]
-		p.join()
-		print('proc ' + str(i) + ' finished')
-	
 def render_worker(num, algo, playback_queue, conf):
 	"""Render a scene and add it to playback queue"""
 
@@ -108,8 +112,6 @@ def render_worker(num, algo, playback_queue, conf):
 	open_cmd = [os_open]
 	open_cmd.append(scene_path + fname)
 	playback_queue.put(open_cmd)	
-	print('proc ' + str(num) + ' open_cmd', open_cmd)
-	print('proc ' + str(num) + ' finishing')
 
 def playback_worker(playback_queue):
 	"""Play videos in the playback queue"""
