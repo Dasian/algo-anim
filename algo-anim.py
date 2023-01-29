@@ -21,11 +21,11 @@ def main():
 	# TODO user controlled input
 	global is_infinite
 	global start_time
-	num_workers = 2
+	num_workers = 5
 	algo = "BFS"
 	is_infinite = False
 	start_time = time.time()
-	max_runtime = 60 	# in seconds
+	max_runtime = 90 	# in seconds
 
 	# Note: you can't have a playlist using xdg-open
 	playback_queue = mp.Queue()
@@ -45,9 +45,9 @@ def main():
 		procs.append(p)
 	
 	# let threads run until time limit
-#	while is_infinite or uptime() < max_runtime:
-#		if not is_infinite:
-#			time.sleep(max_runtime - uptime())
+	while is_infinite or uptime() < max_runtime:
+ 		if not is_infinite:
+ 			time.sleep(max_runtime - uptime())
 
 	# join render workers for graceful shutdown?
 	print('joining procs: ')
@@ -55,7 +55,7 @@ def main():
 		p = procs[i]
 		p.join()
 		print('proc ' + str(i) + ' finished')
-	
+	pb_proc.terminate()	
 
 def init():
 	# os specific init
@@ -116,17 +116,19 @@ def render_worker(num, algo, playback_queue, conf):
 def playback_worker(playback_queue):
 	"""Play videos in the playback queue"""
 	# TODO find a way to play next vid w/o starting a new proc
-	print('playback starting')
+	import json
 
-	open_cmd = playback_queue.get()
-	while open_cmd != None: 
-		print('playback open_cmd ', open_cmd)
-		sp.Popen(open_cmd)
-		# TODO wait until playback is finished
+	while True:
 		open_cmd = playback_queue.get()
-
-	# queue is empty here with no more render workers
-	print('playback ending')
+		print('playback open_cmd ', open_cmd)
+		sp.Popen(open_cmd)	# play rendered scene
+		filename = open_cmd[1]
+		result = sp.check_output(
+			f'ffprobe -v quiet -show_streams -select_streams v:0 -of json "{filename}"',
+			shell=True).decode()
+		fields = json.loads(result)['streams'][0]
+		duration = fields['duration']
+		time.sleep(float(duration))	# wait until scene is finished playing
 
 def uptime():
 	"""Returns the number of seconds the program has been running"""
