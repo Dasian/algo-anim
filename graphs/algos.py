@@ -1,5 +1,7 @@
 """
 	Collection of animated graph algorithms
+    Generates a a series of animation states
+    that will create a scene.
 
 	Implemented: BFS
 	Planned: DFS, Djikstra

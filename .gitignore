@@ -134,3 +134,7 @@ media/
 # vim temporary files
 *.swp
 *.swo
+
+# venv files
+.algo-anim/
+venv

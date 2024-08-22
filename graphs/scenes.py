@@ -1,3 +1,8 @@
+"""
+    Creates a manim scene based on animation
+    states generated.
+"""
+
 from manim import *
 
 # manim -pql scenes.py BFS
@@ -5,11 +10,15 @@ from . import generator
 from . import algos
 from .config import * 
 
+# might be able to use the same scene for all
+# graph animations? 
+# only difference will be the animation state order
+# based on animation state generation in algos.py
 class BFS(Scene):
-	def __init__(self):
+	def __init__(self, n=5):
 		super().__init__()
 		# graph generator settings
-		self.n = 5	# num nodes
+		self.n = n	# num nodes
 		self.p = .5	# probability of removing an edge
 		# manim graph settings
 		self.labels = True
@@ -35,6 +44,8 @@ class BFS(Scene):
 		curr_vc[generated_graph.get_end()] = {"fill_color": state_colors[GraphState.END]}
 
 		# generate an ordered list of animation state change tuples
+        # returns generated_graph.get_anim_states()
+        # only thing that needs to be changed on algo change
 		states = algos.bfs_states(generated_graph)
 
 		self.play(Create(manim_graph), run_time=2)

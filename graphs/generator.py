@@ -7,6 +7,10 @@
 	Supported graphs:
 		Randomly created edges
 		Random planar (no crossing edges)
+
+    TODO:
+        maybe test out using stuff like networkx and then
+        translating those graphs to my graphs
 """
 from itertools import combinations
 from .graph import *

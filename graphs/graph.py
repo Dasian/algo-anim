@@ -4,6 +4,8 @@
 
 	TODO:
 		clean up!
+        figure out how to store/animate pseudo code instructions
+        stuff like visualizing the queue and stuff
 """
 from . import config
 
@@ -17,6 +19,8 @@ class Graph(object):
 		self.visited = [False for x in range(len(V))] # visited[vert] = vert.isVisited
 		self.anim_states = [] # ordered list of (vc, ec)
 
+        # generates a graph from V and E
+        # TODO make this bettah
 		# graph_dict[vertice] = [edges]
 		self.graph_dict = {}
 		for v in V:
