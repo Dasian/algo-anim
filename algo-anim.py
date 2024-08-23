@@ -3,26 +3,22 @@
     Keeps track of animation queue
     Main program for running all of this
 """
-from graphs.scenes import *
-import platform
-import subprocess as sp
 from manim import *
+from graphs.scenes import *
+import subprocess as sp
 import multiprocessing as mp
 import time
 import argparse
+import platform
 
-
+# driver
 def main():
-    # get commandline arguments
-    global cmd_args
-    cmd_args = cmdline_args()
-
     # sets watch video command, default config file,
     # and media generation path
     init()
 
-    # can probably do without the globals but fine for now...
-    global is_infinite
+    # get commandline arguments
+    cmd_args = cmdline_args()
     global start_time
     num_workers = cmd_args.num_animations
     algo = cmd_args.algo
@@ -42,7 +38,7 @@ def main():
     procs = []
     for i in range(num_workers):
         # render_worker() args
-        args = (i,algo,playback_queue,conf_template)
+        args = (i,algo,playback_queue,conf_template,cmd_args.size)
         p = mp.Process(target=render_worker, args=args, daemon=True)
         # create a callback when proc finishes to start new render_worker?
         p.start()
@@ -73,9 +69,9 @@ def cmdline_args():
                         choices=['BFS'], default='BFS',
                         help='Algorithm to display')
     # maybe just make one size arg for arrs, graphs, and others?
-    parser.add_argument('--graph-size', type=int, 
+    parser.add_argument('--size', type=int, 
                         default=5,
-                        help='Size of the generated graph')
+                        help='Size of the generated data structure')
     parser.add_argument('--inf', '--infinite', type=bool, 
                         default=False,
                         help='Generate animations indefinitely')
@@ -98,6 +94,7 @@ def cmdline_args():
     return parser.parse_args()
 
 def init():
+    """Sets playback command, media directory, and sets default config"""
     # os specific init
     global os_open
     curr_os = platform.system()
@@ -132,23 +129,25 @@ def init():
         "partial_movie_dir": "{video_dir}/partial_movie_files/"
     }
 
-def render_worker(num, algo, playback_queue, conf):
+def render_worker(num, algo, playback_queue, conf, ds_size):
     """Render a scene and add it to playback queue"""
 
+    # name rendered algo
     fname = algo.upper() + str(num) + ext
     conf["output_file"] = fname
     conf["partial_movie_dir"] = "{video_dir}/partial_movie_files/" + algo.upper() + str(num)
 
-    # TODO use a dict to make scene object
+    # render algo
     scene = None
     with tempconfig(conf):
         if algo.upper() == "BFS":
-            scene = BFS(n=cmd_args.graph_size)
+            scene = GraphScene(n=ds_size, algo=algo.upper())
         else:
             raise("'" + algo + "'" + " is not a supported algorithm")
 
         scene.render()
 
+    # add playback command to queue
     open_cmd = [os_open]
     open_cmd.append(scene_path + fname)
     playback_queue.put(open_cmd)    
@@ -172,7 +171,6 @@ def playback_worker(playback_queue):
 
 def uptime():
     """Returns the number of seconds the program has been running"""
-
     return time.time() - start_time
 
 if __name__ == "__main__":
