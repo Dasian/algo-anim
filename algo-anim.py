@@ -42,7 +42,7 @@ def main():
     procs = []
     for i in range(num_workers):
         # render_worker() args
-        worker_algo = graph_algos[random.randint(0, len(graph_algos))] if is_random else algo
+        worker_algo = graph_algos[random.randint(0, len(graph_algos)-1)] if is_random else algo
         args = (i,worker_algo,playback_queue,conf_template,cmd_args.size)
         p = mp.Process(target=render_worker, args=args, daemon=True)
         # create a callback when proc finishes to start new render_worker?
