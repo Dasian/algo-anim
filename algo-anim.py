@@ -10,6 +10,9 @@ import multiprocessing as mp
 import time
 import argparse
 import platform
+from graphs.generator import *
+
+graph_algos = ['BFS', 'DFS']
 
 # driver
 def main():
@@ -25,6 +28,7 @@ def main():
     is_infinite = cmd_args.inf
     start_time = time.time()
     max_runtime = cmd_args.runtime    # in seconds
+    is_random = cmd_args.random
 
     # Note: you can't have a playlist using xdg-open
     playback_queue = mp.Queue()
@@ -38,7 +42,8 @@ def main():
     procs = []
     for i in range(num_workers):
         # render_worker() args
-        args = (i,algo,playback_queue,conf_template,cmd_args.size)
+        worker_algo = graph_algos[random.randint(0, len(graph_algos))] if is_random else algo
+        args = (i,worker_algo,playback_queue,conf_template,cmd_args.size)
         p = mp.Process(target=render_worker, args=args, daemon=True)
         # create a callback when proc finishes to start new render_worker?
         p.start()
@@ -66,7 +71,7 @@ def cmdline_args():
     # implies a data structure
     # ["BFS, "DFS", "sort", "insertion-sort"]
     parser.add_argument('-a', '--algo', type=str, 
-                        choices=['BFS'], default='BFS',
+                        choices=['BFS', 'DFS', 'bfs', 'dfs'], default='BFS',
                         help='Algorithm to display')
     # maybe just make one size arg for arrs, graphs, and others?
     parser.add_argument('--size', type=int, 
@@ -140,7 +145,7 @@ def render_worker(num, algo, playback_queue, conf, ds_size):
     # render algo
     scene = None
     with tempconfig(conf):
-        if algo.upper() == "BFS":
+        if algo.upper() in graph_algos:
             scene = GraphScene(n=ds_size, algo=algo.upper())
         else:
             raise("'" + algo + "'" + " is not a supported algorithm")

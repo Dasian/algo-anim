@@ -16,30 +16,34 @@ from .config import *
 class GraphScene(Scene):
     def __init__(self, n=5, algo='BFS'):
         super().__init__()
-        # graph generator settings
-        self.n = n  # num nodes
-        self.p = .5 # probability of removing an edge
+
         # manim graph settings
         self.labels = True
-        self.layout = "circular"
-        self.layout_scale = 3
+        # circular, bfs_layout with networkx stuff?
+        self.layout = "tree"
+        self.layout_scale = 5
+        # TODO tree size from user input
 
-        if algo.upper() == 'BFS':
-            self.state_generator = algos.bfs_states
-        else:
-            self.state_generator = None
+        # networkx? 
+        # tree vs graph?
+
+        # algorithm settings
+        self.algo = algo.upper()
+        # key is algo, value is corresponding animation state function
+        self.state_generator = {'BFS': algos.bfs_states,
+                                'DFS': algos.dfs_states}
 
     def construct(self):
 
         # generate a graph
-        generated_graph = generator.random_graph(self.n, self.p)
+        # generated_graph = generator.random_graph(self.n, self.p)
+        generated_graph = generator.nx_gen()
         V = generated_graph.all_vertices()
         E = generated_graph.all_edges()
-        manim_graph = Graph(V, E, labels=self.labels, layout=self.layout, layout_scale=self.layout_scale)   
+        manim_graph = Graph(V, E, labels=self.labels, layout=self.layout, layout_scale=self.layout_scale, root_vertex=0)   
 
         # init node and edge colors
-        curr_vc = {}
-        curr_ec = {}
+        curr_vc, curr_ec = {}, {}
         for v in V:
             curr_vc[v] = {"fill_color": state_colors[GraphState.DEFAULT]}
         for e in E:
@@ -49,13 +53,14 @@ class GraphScene(Scene):
 
         # generate an ordered list of animation state change tuples
         # returns generated_graph.get_anim_states()
-        states = self.state_generator(generated_graph)
+        states = self.state_generator[self.algo](generated_graph)
 
         # animate the algorithm steps
         self.play(Create(manim_graph), run_time=2)
         for s in states:
             vc, ec = s
 
+            # what the fuck
             # apply state changes
             for k in vc.keys():
                 curr_vc[k] = vc[k][k]
@@ -63,7 +68,7 @@ class GraphScene(Scene):
                 curr_ec[k] = ec[k][k]
 
             # render one animation state/step
-            next_graph = Graph(V, E, labels=self.labels, layout=self.layout, layout_scale=self.layout_scale, vertex_config=curr_vc, edge_config=curr_ec)
+            next_graph = Graph(V, E, root_vertex=0, labels=self.labels, layout=self.layout, layout_scale=self.layout_scale, vertex_config=curr_vc, edge_config=curr_ec)
             self.play(ReplacementTransform(manim_graph, next_graph))
             manim_graph = next_graph
 
