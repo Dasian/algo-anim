@@ -13,6 +13,7 @@ import platform
 from graphs.generator import *
 
 graph_algos = ['BFS', 'DFS']
+start_time = time.time()
 
 # driver
 def main():
@@ -22,11 +23,9 @@ def main():
 
     # get commandline arguments
     cmd_args = cmdline_args()
-    global start_time
     num_workers = cmd_args.num_animations
     algo = cmd_args.algo
     is_infinite = cmd_args.inf
-    start_time = time.time()
     max_runtime = cmd_args.runtime    # in seconds
     is_random = cmd_args.random
 
@@ -78,21 +77,22 @@ def cmdline_args():
                         default=5,
                         help='Size of the generated data structure')
     parser.add_argument('--inf', '--infinite', type=bool, 
-                        default=False,
+                        default=False, action=argparse.BooleanOptionalAction,
                         help='Generate animations indefinitely')
     # currently just changes the number of workers
     # since workers only make one animation
     parser.add_argument('--num-animations', type=int, 
                         default=4,
                         help='Number of animations to generate')
-    # doesn't do anything yet
     # a set data structure should restrict this?
     parser.add_argument('-r', '--random', type=bool, 
-                        default=False,
+                        default=False, action=argparse.BooleanOptionalAction,
                         help='Generate a random animation')
+    # TODO
     parser.add_argument('-ds', '--data-structure', type=str, 
                         default='graph', choices=['graph'],
                         help='Data structure to generate animations on')
+    # TODO make this,, better
     parser.add_argument('-rt', '--runtime', type=int, 
                         default=60,
                         help='Maximum runtime of the program in seconds')

@@ -18,24 +18,22 @@ import random
 import networkx as nx
 
 # testing out making trees
-def nx_gen():
-    # 2 children, height of 3
-    graph = nx.balanced_tree(2, 3)
+def balanced_tree(children=2, height=3, isDirected=False):
+    graph = nx.balanced_tree(children, height)
     E = list(graph.edges)
     V = list(graph.nodes)
 
     # not directed? have to add inverse
-    for src, dest in E:
-        if (dest, src) not in E:
+    if not isDirected:
+        for src, dest in E:
+            if (dest, src) in E:
+                break
             E.append((dest, src))
-        else:
-            break
 
     # put generated graph into custom graph data structure
-    start = 0
-    end = random.randint(0, len(V))
-    g = Graph(V, E, start, end, isDirected=False)
-    return g
+    # prevent tree path of 1
+    end = random.randint(children+1, len(V)-1)
+    return Graph(V, E, start=0, end=end, isDirected=False)
 
 def random_graph(n=-1, p=.05 ,isDirected=False):
     """

@@ -9,12 +9,9 @@ from . import generator
 from . import algos
 from .config import * 
 
-# might be able to use the same scene for all
-# graph animations? 
-# only difference will be the animation state order
-# based on animation state generation in algos.py
+# generates algo scene for graphs
 class GraphScene(Scene):
-    def __init__(self, n=5, algo='BFS'):
+    def __init__(self, n=5, algo='BFS', height=3, children=2):
         super().__init__()
 
         # manim graph settings
@@ -22,10 +19,8 @@ class GraphScene(Scene):
         # circular, bfs_layout with networkx stuff?
         self.layout = "tree"
         self.layout_scale = 5
-        # TODO tree size from user input
-
-        # networkx? 
-        # tree vs graph?
+        self.height = height
+        self.children = children
 
         # algorithm settings
         self.algo = algo.upper()
@@ -34,10 +29,8 @@ class GraphScene(Scene):
                                 'DFS': algos.dfs_states}
 
     def construct(self):
-
-        # generate a graph
-        # generated_graph = generator.random_graph(self.n, self.p)
-        generated_graph = generator.nx_gen()
+        # generate a graph/tree
+        generated_graph = generator.balanced_tree(self.children, self.height)
         V = generated_graph.all_vertices()
         E = generated_graph.all_edges()
         manim_graph = Graph(V, E, labels=self.labels, layout=self.layout, layout_scale=self.layout_scale, root_vertex=0)   
