@@ -1,8 +1,9 @@
-# Algo Anim
+# Algorithm Animations
 Animate common algorithms on randomly generated data structures using [manim](https://github.com/ManimCommunity/manim)
 
 ## Features
-- Animate BFS and DFS on randomly generated trees
+- BFS on balanced trees
+- DFS on balanced trees
 
 ## Installation
 Follow the [manim installation instructions](https://docs.manim.community/en/stable/installation.html)
@@ -14,12 +15,12 @@ Isolates packages from the rest of your system. The environment needs to be acti
 #### Windows
 ```cmd
 python -m venv .algo-anim
-call .algo-anime/scripts/activate.bat
+call .algo-anim/scripts/activate.bat
 ```
 #### Linux
 ```bash
 python3 -m venv .algo-anim  
-source .algo-anime/bin/activate
+source .algo-anim/bin/activate
 ```
 ### Install Python Libraries
 ```bash
