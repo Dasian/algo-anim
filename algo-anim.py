@@ -9,23 +9,26 @@ import subprocess as sp
 from manim import *
 import multiprocessing as mp
 import time
+import argparse
+
 
 def main():
-    # TODO add cmd flags
-    # --ds --data-structure = ["graph", "array"]
-    # --inf --infinite
-    # --nw --num_workers [num]
-    # --a --algo = ["BFS, "DFS", "sort", "insertion-sort"]
+    # get commandline arguments
+    global cmd_args
+    cmd_args = cmdline_args()
+
+    # sets watch video command, default config file,
+    # and media generation path
     init()
 
-    # TODO user controlled input
+    # can probably do without the globals but fine for now...
     global is_infinite
     global start_time
-    num_workers = 5
-    algo = "BFS"
-    is_infinite = False
+    num_workers = cmd_args.num_animations
+    algo = cmd_args.algo
+    is_infinite = cmd_args.inf
     start_time = time.time()
-    max_runtime = 90    # in seconds
+    max_runtime = cmd_args.runtime    # in seconds
 
     # Note: you can't have a playlist using xdg-open
     playback_queue = mp.Queue()
@@ -58,6 +61,41 @@ def main():
         p.join()
         print('proc ' + str(i) + ' finished')
     pb_proc.terminate() 
+
+def cmdline_args():
+    """Set cmdline args and return parsed args object"""
+
+    # --runtime = 10, 50, 100, ... (in seconds)
+    parser = argparse.ArgumentParser(description='Generate an algorithm animation with manim')
+    # implies a data structure
+    # ["BFS, "DFS", "sort", "insertion-sort"]
+    parser.add_argument('-a', '--algo', type=str, 
+                        choices=['BFS'], default='BFS',
+                        help='Algorithm to display')
+    # maybe just make one size arg for arrs, graphs, and others?
+    parser.add_argument('--graph-size', type=int, 
+                        default=5,
+                        help='Size of the generated graph')
+    parser.add_argument('--inf', '--infinite', type=bool, 
+                        default=False,
+                        help='Generate animations indefinitely')
+    # currently just changes the number of workers
+    # since workers only make one animation
+    parser.add_argument('--num-animations', type=int, 
+                        default=4,
+                        help='Number of animations to generate')
+    # doesn't do anything yet
+    # a set data structure should restrict this?
+    parser.add_argument('-r', '--random', type=bool, 
+                        default=False,
+                        help='Generate a random animation')
+    parser.add_argument('-ds', '--data-structure', type=str, 
+                        default='graph', choices=['graph'],
+                        help='Data structure to generate animations on')
+    parser.add_argument('-rt', '--runtime', type=int, 
+                        default=60,
+                        help='Maximum runtime of the program in seconds')
+    return parser.parse_args()
 
 def init():
     # os specific init
@@ -105,7 +143,7 @@ def render_worker(num, algo, playback_queue, conf):
     scene = None
     with tempconfig(conf):
         if algo.upper() == "BFS":
-            scene = BFS(n=5)
+            scene = BFS(n=cmd_args.graph_size)
         else:
             raise("'" + algo + "'" + " is not a supported algorithm")
 
@@ -134,6 +172,7 @@ def playback_worker(playback_queue):
 
 def uptime():
     """Returns the number of seconds the program has been running"""
+
     return time.time() - start_time
 
 if __name__ == "__main__":
