@@ -30,15 +30,15 @@ def main():
     algo = cmd_args.algo
     is_random = cmd_args.random
     is_infinite = cmd_args.inf
+    data_structure = cmd_args.data_structure
 
     # doesn't do anything rn
     max_runtime = cmd_args.runtime    # in seconds
 
     # helper to generate animation arguments for pool workers
     def create_anim_job(anim_num=0):
-        # create a list of animations to render
         worker_algo = graph_algos[random.randint(0, len(graph_algos)-1)] if is_random else algo
-        worker_args = (anim_num,worker_algo,conf_template,cmd_args.size)
+        worker_args = (anim_num,worker_algo,conf_template,cmd_args.size, data_structure)
         return worker_args
 
     # create a list of animations to render
@@ -82,7 +82,7 @@ def main():
     pool.close()
     pool.join()
 
-def render_worker(num, algo,  conf, ds_size):
+def render_worker(num, algo,  conf, ds_size, ds):
     """Render a scene and add it to playback queue"""
     print('render worker starting')
 
@@ -112,7 +112,6 @@ def worker_callback(res):
     playback_queue.put(res)
     return
 
-
 def cmdline_args():
     """Set cmdline args and return parsed args object"""
 
@@ -127,8 +126,7 @@ def cmdline_args():
     parser.add_argument('--size', type=int, 
                         default=5,
                         help='Size of the generated data structure')
-    parser.add_argument('--inf', '--infinite', type=bool, 
-                        default=False, action=argparse.BooleanOptionalAction,
+    parser.add_argument('--inf', '--infinite', action='store_true',
                         help='Generate animations indefinitely')
     # currently just changes the number of workers
     # since workers only make one animation
@@ -136,12 +134,11 @@ def cmdline_args():
                         default=3,
                         help='Number of animations to generate')
     # a set data structure should restrict this?
-    parser.add_argument('-r', '--random', type=bool, 
-                        default=False, action=argparse.BooleanOptionalAction,
+    parser.add_argument('-r', '--random', action-'store_true',
                         help='Generate a random animation')
     # TODO
     parser.add_argument('-ds', '--data-structure', type=str, 
-                        default='graph', choices=['graph'],
+                        default='tree', choices=['graph', 'tree'],
                         help='Data structure to generate animations on')
     # TODO make this,, better
     parser.add_argument('-rt', '--runtime', type=int, 
